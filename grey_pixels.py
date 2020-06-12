@@ -11,10 +11,11 @@ import sys
 
 #=== Arguments ===#
 
-#1. name 2. format 3. intensity
+#1. name (string) 2. format (string) 3. intensity (float)
+
 args = sys.argv
 
-file_name = args[1]
+folder = args[1]
 picture_format = args[2]
 grey_intensity = float(args[3])
 
@@ -49,7 +50,11 @@ def change_dose(name, file_format, intensity):
 
 
 if __name__ == "__main__":
-	change_dose(file_name, picture_format, grey_intensity)
+	file_names =[]
+	file_names = [int(item) for item in input("Enter the list items : ").split()]
+	print(file_names)
+	for file_name in file_names:
+		change_dose(folder+str(file_name), picture_format, grey_intensity)
 
 
 
