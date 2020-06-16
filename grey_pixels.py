@@ -50,6 +50,7 @@ def change_dose(name, file_format, intensity):
 
 
 if __name__ == "__main__":
+	print(f'folder : {folder}')
 	file_names =[]
 	file_names = [int(item) for item in input("Enter the write-field numbers : ").split()]
 	print(file_names)
