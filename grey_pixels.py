@@ -8,6 +8,8 @@ Alexis Jouan - 01/06/2020'''
 
 from PIL import Image
 import sys
+import zipfile as zp
+import numpy as np
 
 #=== Arguments ===#
 
@@ -16,8 +18,7 @@ import sys
 args = sys.argv
 
 folder = args[1]
-picture_format = args[2]
-grey_intensity = float(args[3])
+filename = args[2]
 
 #=== Functions ===#
 
@@ -27,13 +28,14 @@ def load_image(name):
 	#im.show()
 	return im
 
-def change_dose(name, file_format, intensity):
-	file_name = name+'.'+file_format
+def change_dose(file, intensity):
+	#file_name = name+'.'+file_format
 	#Load image
-	im = load_image(file_name)
+	im = load_image(file)
 
 	# Create the pixel map
 	pixels = im.load() 
+	new_pixels = np.zeros((im.size[1], im.size[0], 4), dtype='|u1')
 
 	N = int(255.0*intensity)
 
@@ -42,20 +44,48 @@ def change_dose(name, file_format, intensity):
 	        
 	        (r, g, b, a) = pixels[i,j]
 	        # Change each pixel 
-	        pixels[i,j] = (int(r*intensity), int(g*intensity), int(b*intensity), a)
+	        new_pixels[j,i] = (int(r*intensity), int(g*intensity), int(b*intensity), a)
 	
-	im.save(name+'_intensity_'+str(intensity)+'.'+file_format)
+	#im.save(name+'_intensity_'+str(intensity)+'.'+file_format)
 
-	return pixels
+	return new_pixels
 
 
 if __name__ == "__main__":
-	print(f'folder : {folder}')
-	file_names =[]
-	file_names = [int(item) for item in input("Enter the write-field numbers : ").split()]
-	print(file_names)
-	for file_name in file_names:
-		change_dose(folder+str(file_name), picture_format, grey_intensity)
+	png_nbs =[]
+	doses = []
+	png_nbs = [int(item) for item in input("Enter write-field numbers : ").split()]
+	doses = [float(item) for item in input("Enter corresponding doses : ").split()]
+
+	png_new = []
+
+	with zp.ZipFile(folder+filename+'.stitch', 'r') as myzip:
+		for png_nb, dose in zip(png_nbs, doses):
+			with myzip.open(f'{png_nb}.png', 'r') as myfile:
+				png_new.append(change_dose(myfile, dose))
+	def condition(string, elements):
+		boolean = True
+		for e in elements:
+			if string == str(e)+'.png':
+				boolean = False
+		return boolean
+
+	zin = zp.ZipFile (folder+filename+'.stitch', 'r')
+	zout = zp.ZipFile (folder+filename+'_dose_test.stitch', 'w')
+	
+	for item in zin.infolist():
+		buffer = zin.read(item.filename)
+		if condition(item.filename, png_nbs):
+			zout.writestr(item, buffer)
+	zout.close()
+	zin.close()
+
+	with zp.ZipFile(folder+filename+'_dose_test.stitch', 'a') as myzip:
+		for png_nb, png_data in zip(png_nbs, png_new):
+			with myzip.open(f'{png_nb}.png', 'w') as myfile:
+				im = Image.fromarray(png_data)
+				im.save(myfile, 'png')
+		
 
 
 
