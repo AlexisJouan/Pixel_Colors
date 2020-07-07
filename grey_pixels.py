@@ -64,11 +64,8 @@ if __name__ == "__main__":
 			with myzip.open(f'{png_nb}.png', 'r') as myfile:
 				png_new.append(change_dose(myfile, dose))
 	def condition(string, elements):
-		boolean = True
-		for e in elements:
-			if string == str(e)+'.png':
-				boolean = False
-		return boolean
+		return string not in [str(e)+'.png' for e in elements]
+		
 
 	zin = zp.ZipFile (folder+filename+'.stitch', 'r')
 	zout = zp.ZipFile (folder+filename+'_dose_test.stitch', 'w')
