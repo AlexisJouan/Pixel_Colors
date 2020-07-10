@@ -63,12 +63,12 @@ if __name__ == "__main__":
 		for png_nb, dose in zip(png_nbs, doses):
 			with myzip.open(f'{png_nb}.png', 'r') as myfile:
 				png_new.append(change_dose(myfile, dose))
+
 	def condition(string, elements):
 		return string not in [str(e)+'.png' for e in elements]
-		
 
 	zin = zp.ZipFile (folder+filename+'.stitch', 'r')
-	zout = zp.ZipFile (folder+filename+'_dose_test.stitch', 'w')
+	zout = zp.ZipFile (folder+filename+'_out.stitch', 'w')
 	
 	for item in zin.infolist():
 		buffer = zin.read(item.filename)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 	zout.close()
 	zin.close()
 
-	with zp.ZipFile(folder+filename+'_dose_test.stitch', 'a') as myzip:
+	with zp.ZipFile(folder+filename+'_out.stitch', 'a') as myzip:
 		for png_nb, png_data in zip(png_nbs, png_new):
 			with myzip.open(f'{png_nb}.png', 'w') as myfile:
 				im = Image.fromarray(png_data)
